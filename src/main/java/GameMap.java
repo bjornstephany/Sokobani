@@ -179,7 +179,9 @@ public class GameMap {
     public void writeToFile(String fileName) {
         char[][] map = new char[gridHeight][gridWidth];
         for(GameObject object : staticObjects) {
-            System.out.println(object.position.toString());
+            int x = object.getPosition().getX();
+            int y = object.getPosition().getY();
+            char symbol = object.getSymbol();
         }
     }
 }

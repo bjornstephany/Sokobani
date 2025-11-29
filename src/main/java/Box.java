@@ -5,8 +5,8 @@ public class Box extends GameObject implements Movable{
     }
 
     @Override
-    String getSymbol() {
-        return "B";
+    char getSymbol() {
+        return 'B';
     }
 
     @Override

@@ -6,8 +6,8 @@ public class Wall extends GameObject{
         super(position);
     }
     @Override
-    String getSymbol() {
-        return "#";
+    char getSymbol() {
+        return '#';
     }
 
 }

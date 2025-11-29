@@ -10,8 +10,8 @@ public class Player extends GameObject implements Movable{
     }
 
     @Override
-    String getSymbol() {
-        return "P";
+    char getSymbol() {
+        return 'P';
     }
 
     @Override

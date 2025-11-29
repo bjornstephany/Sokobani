@@ -14,7 +14,7 @@ public abstract class GameObject {
     }
 
     // A getSymbol() method that returns a character (e.g., 'P', '#', or '.')
-    abstract String getSymbol();
+    abstract char getSymbol();
 
     boolean isAt(int x, int y) {
         if(position.getX() == x && position.getY() == y) {

@@ -10,6 +10,7 @@ public class Game {
         GameMap map = new GameMap();
         try {
             map.loadFromResource("level1.txt");
+            //map.writeToFile("level1.txt");
         } catch (GameMap.InvalidLevelFormatException e) {
             // exit gracefully
             System.out.println(e.getMessage());

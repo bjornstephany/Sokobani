@@ -5,7 +5,7 @@ public class Target extends GameObject {
         super(position);
     }
     @Override
-    String getSymbol() {
-        return "T";
+    char getSymbol() {
+        return 'T';
     }
 }
