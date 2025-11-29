@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class GameMap {
@@ -9,7 +10,7 @@ public class GameMap {
     ArrayList<GameObject> dynamicObjects = new ArrayList<>();
 
     int gridHeight;
-    int gridWidth = 0;
+    int gridWidth;
     Player player;
 
     void draw() {
@@ -27,7 +28,8 @@ public class GameMap {
     }
 
     GameObject getObjectAt(int x, int y) {
-        //Checks for dynamic objects first so if a tile has a Box and a Target it will print the box!
+        // Checks for dynamic objects first so if a tile has a Box and a Target it will
+        // print the box!
         for (GameObject object : dynamicObjects) {
             if (object.isAt(x, y)) {
                 return object;
@@ -86,26 +88,41 @@ public class GameMap {
         }
     }
 
-    void loadFromFile(String fileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))){
+    public class InvalidLevelFormatException extends Exception {
+        public InvalidLevelFormatException(String message) {
+            super(message);
+        }
+    }
+
+    void loadFromResource(String fileName) throws InvalidLevelFormatException, IOException {
+        InputStream input = Game.class.getResourceAsStream(fileName);
+        if (input == null) {
+            System.out.println("Error: resource doesn't exist!!!");
+            return;
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
             String line;
             int y = 0;
-            
+            int pCount = 0;
+
             while ((line = reader.readLine()) != null) {
-                //Make grid as wide as the longest line in the txt.file
-                gridWidth = Math.max(gridWidth, line.length());
+                // All lines must have the same length (rectangular map)
+                if (line.length() != gridWidth && gridWidth != 0) {
+                    throw new InvalidLevelFormatException("Invalid Length on line " + y);
+                }
                 for (int x = 0; x < line.length(); x++) {
                     char c = line.charAt(x);
-                    //System.out.print(c);
+                    // System.out.print(c);
                     Position position = new Position(x, y);
-                    //Check for each object symbol
+                    // Check for each object symbol
                     switch (c) {
                         case '#':
                             staticObjects.add(new Wall(position));
                             break;
                         case 'P':
+                            pCount++;
                             player = new Player(position);
-                            //for the inBounds method in Player
+                            // for the inBounds method in Player
                             player.map = this;
                             dynamicObjects.add(player);
                             break;
@@ -115,33 +132,38 @@ public class GameMap {
                         case 'T':
                             staticObjects.add(new Target(position));
                             break;
-                        default: //ignore if unknown
+                        case ' ': // Ignore
                             break;
+                        default: // Only these characters are allowed: #, T, B, P, space
+                            throw new InvalidLevelFormatException(
+                                    "Invalid Character: " + c + "@(" + x + "," + y + ")");
                     }
                 }
-                //System.out.println();
+                // System.out.println();
+                gridWidth = line.length();
                 y++;
             }
+            // There must be exactly one P
+            if (pCount != 1)
+                throw new InvalidLevelFormatException("You need exactly one P");
             gridHeight = y;
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    //loop through all Target objects, and for each one, check if a Box is also present at the same position.
+    // loop through all Target objects, and for each one, check if a Box is also
+    // present at the same position.
     void checkWinCondition() {
         int targetCount = 0;
         int boxOnTarget = 0;
-        for(GameObject target : staticObjects) {
+        for (GameObject target : staticObjects) {
             if (target instanceof Target) {
                 targetCount++;
-                int tx = ((Target)target).position.getX();
-                int ty =((Target)target).position.getY();
-                for(GameObject box : dynamicObjects) {
+                int tx = ((Target) target).position.getX();
+                int ty = ((Target) target).position.getY();
+                for (GameObject box : dynamicObjects) {
                     if (box instanceof Box) {
-                        int bx = ((Box)box).position.getX();
-                        int by = ((Box)box).position.getY();
+                        int bx = ((Box) box).position.getX();
+                        int by = ((Box) box).position.getY();
                         if (tx == bx && ty == by) {
                             boxOnTarget++;
                         }
@@ -151,6 +173,13 @@ public class GameMap {
         }
         if (targetCount == boxOnTarget) {
             System.out.println("You win!");
+        }
+    }
+
+    public void writeToFile(String fileName) {
+        char[][] map = new char[gridHeight][gridWidth];
+        for(GameObject object : staticObjects) {
+            System.out.println(object.position.toString());
         }
     }
 }

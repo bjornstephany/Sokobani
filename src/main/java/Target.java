@@ -1,3 +1,4 @@
+
 public class Target extends GameObject {
 
     Target(Position position) {
